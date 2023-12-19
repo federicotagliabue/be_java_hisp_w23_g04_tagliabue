@@ -1,11 +1,14 @@
 package com.sprint.be_java_hisp_w23_g04.service;
 
 import com.sprint.be_java_hisp_w23_g04.dto.request.PostDTO;
+import com.sprint.be_java_hisp_w23_g04.dto.request.PromoDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.FollowedListDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.UserDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.UserFollowDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.*;
 import com.sprint.be_java_hisp_w23_g04.entity.Post;
+import com.sprint.be_java_hisp_w23_g04.entity.Promo;
+import com.sprint.be_java_hisp_w23_g04.exception.BadRequestException;
 import com.sprint.be_java_hisp_w23_g04.utils.PostMapper;
 import com.sprint.be_java_hisp_w23_g04.utils.UserMapper;
 import com.sprint.be_java_hisp_w23_g04.utils.Verifications;
@@ -121,10 +124,18 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         List<Post> posts = new ArrayList<>();
         User user = socialMediaRepository.findUser(post.getUserId());
 
-        verifyUserExist(user);
+        if (user == null) {
+            throw new BadRequestException("El id usuario proporcionado no existe.");
+        }
+
         int postId = socialMediaRepository.getNextPostId(user);
 
-        posts.add(UserMapper.mapPost(post, postId));
+        if (post instanceof PromoDTO) {
+            posts.add(UserMapper.mapPromo((PromoDTO) post, postId));
+        } else if (post instanceof PostDTO) {
+            posts.add(UserMapper.mapPost(post, postId));
+        }
+
         posts.addAll(user.getPosts());
         user.setPosts(posts);
 
@@ -158,16 +169,18 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 
         for (User seller : user.getFollowed()) {
             for (Post post : seller.getPosts()) {
-                if (post.getDate().isAfter(filterDate)) {
-                    PostResponseDTO postDTO = PostMapper.PostRequestDTOMapper(userId, post);
-                    filteredPosts.add(postDTO);
+                if (post instanceof Post) {
+                    if (post.getDate().isAfter(filterDate)) {
+                        PostResponseDTO postDTO = PostMapper.PostRequestDTOMapper(userId, post);
+                        filteredPosts.add(postDTO);
+                    }
                 }
             }
         }
 
         Verifications.validateEmptyResponseList(filteredPosts);
 
-        switch (order){
+        switch (order) {
             case "date_asc" -> filteredPosts = orderAsc(filteredPosts);
             case "date_desc" -> filteredPosts = orderDesc(filteredPosts);
         }
@@ -175,16 +188,26 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return new FilteredPostsDTO(userId, filteredPosts);
     }
 
-    private List<PostResponseDTO> orderAsc(List<PostResponseDTO> list){
-       return list.stream()
+    private List<PostResponseDTO> orderAsc(List<PostResponseDTO> list) {
+        return list.stream()
                 .sorted(Comparator.comparing(PostDTO::getDate))
                 .collect(Collectors.toList());
     }
 
-    private List<PostResponseDTO> orderDesc(List<PostResponseDTO> list){
+    private List<PostResponseDTO> orderDesc(List<PostResponseDTO> list) {
         return list.stream()
                 .sorted((p1, p2) -> p2.getDate().compareTo(p1.getDate()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CountPromoDTO countPromo(int userId) {
+        User user = socialMediaRepository.findUser(userId);
+        Verifications.verifyUserExist(user);
+
+        int promoCount = (int) user.getPosts().stream().filter(p -> p instanceof Promo).count();
+
+        return new CountPromoDTO(user.getId(), user.getName(), promoCount);
     }
 
 }
