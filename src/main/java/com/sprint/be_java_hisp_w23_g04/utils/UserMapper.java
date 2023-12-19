@@ -2,12 +2,14 @@ package com.sprint.be_java_hisp_w23_g04.utils;
 
 import com.sprint.be_java_hisp_w23_g04.dto.DBUserDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.request.PostDTO;
+import com.sprint.be_java_hisp_w23_g04.dto.request.PromoDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.PostResponseDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.ProductDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.UserDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.UserFollowDTO;
 import com.sprint.be_java_hisp_w23_g04.entity.Post;
 import com.sprint.be_java_hisp_w23_g04.entity.Product;
+import com.sprint.be_java_hisp_w23_g04.entity.Promo;
 import com.sprint.be_java_hisp_w23_g04.entity.User;
 
 import java.util.ArrayList;
@@ -65,4 +67,13 @@ public class UserMapper {
         return new UserFollowDTO(user.getId(), user.getName());
     }
 
+    public static Promo mapPromo(PromoDTO promo, int postId) {
+        return new Promo(postId,
+                promo.getDate(),
+                mapProduct(promo.getProduct()),
+                promo.getCategory(),
+                promo.getPrice(),
+                promo.isHasPromo(),
+                promo.getDiscount());
+    }
 }

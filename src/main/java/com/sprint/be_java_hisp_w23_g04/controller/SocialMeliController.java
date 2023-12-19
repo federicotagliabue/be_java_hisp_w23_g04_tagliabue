@@ -1,6 +1,7 @@
 package com.sprint.be_java_hisp_w23_g04.controller;
 
 import com.sprint.be_java_hisp_w23_g04.dto.request.PostDTO;
+import com.sprint.be_java_hisp_w23_g04.dto.request.PromoDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,17 +44,27 @@ public class SocialMeliController {
     }
 
     @PostMapping("/products/post")
-    public ResponseEntity<?> savePost(@RequestBody PostDTO post){
+    public ResponseEntity<?> savePost(@RequestBody PostDTO post) {
         return new ResponseEntity<>(socialMediaService.savePost(post), HttpStatus.OK);
     }
 
     @PostMapping("/users/{userId}/unfollow/{userIdToUnfollow}")
-    public ResponseEntity<?> unfollowUser(@PathVariable int userId, @PathVariable int userIdToUnfollow){
+    public ResponseEntity<?> unfollowUser(@PathVariable int userId, @PathVariable int userIdToUnfollow) {
         return new ResponseEntity<>(socialMediaService.unfollowUser(userId, userIdToUnfollow), HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/products/followed/{userId}/list")
-    public ResponseEntity<?> getFilteredPost(@PathVariable int userId,@RequestParam(defaultValue = "date_asc") String order){
-        return new ResponseEntity<>(socialMediaService.getFilteredPosts(userId,order), HttpStatus.OK);
+    public ResponseEntity<?> getFilteredPost(@PathVariable int userId, @RequestParam(defaultValue = "date_asc") String order) {
+        return new ResponseEntity<>(socialMediaService.getFilteredPosts(userId, order), HttpStatus.OK);
+    }
+
+    @PostMapping("/products/promo-post")
+    public ResponseEntity<?> savePromo(@RequestBody PromoDTO promo) {
+        return new ResponseEntity<>(socialMediaService.savePost(promo), HttpStatus.OK);
+    }
+
+    @GetMapping("/products/promo-post/count")
+    public ResponseEntity<?> countPromo(@RequestParam int user_id) {
+        return new ResponseEntity<>(socialMediaService.countPromo(user_id), HttpStatus.OK);
     }
 }
