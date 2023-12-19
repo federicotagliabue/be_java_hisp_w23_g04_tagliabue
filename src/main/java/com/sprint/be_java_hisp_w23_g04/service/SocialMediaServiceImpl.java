@@ -8,6 +8,7 @@ import com.sprint.be_java_hisp_w23_g04.dto.response.UserFollowDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.*;
 import com.sprint.be_java_hisp_w23_g04.entity.Post;
 import com.sprint.be_java_hisp_w23_g04.entity.Promo;
+import com.sprint.be_java_hisp_w23_g04.exception.BadRequestException;
 import com.sprint.be_java_hisp_w23_g04.utils.PostMapper;
 import com.sprint.be_java_hisp_w23_g04.utils.UserMapper;
 import com.sprint.be_java_hisp_w23_g04.utils.Verifications;
@@ -123,7 +124,10 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         List<Post> posts = new ArrayList<>();
         User user = socialMediaRepository.findUser(post.getUserId());
 
-        verifyUserExist(user);
+        if (user == null) {
+            throw new BadRequestException("El id usuario proporcionado no existe.");
+        }
+
         int postId = socialMediaRepository.getNextPostId(user);
 
         if (post instanceof PromoDTO) {
@@ -184,16 +188,6 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return new FilteredPostsDTO(userId, filteredPosts);
     }
 
-    @Override
-    public CountPromoDTO countPromo(int userId) {
-        User user = socialMediaRepository.findUser(userId);
-        Verifications.verifyUserExist(user);
-
-        int promoCount = (int) user.getPosts().stream().filter(p -> p instanceof Promo).count();
-
-        return new CountPromoDTO(user.getId(), user.getName(), promoCount);
-    }
-
     private List<PostResponseDTO> orderAsc(List<PostResponseDTO> list) {
         return list.stream()
                 .sorted(Comparator.comparing(PostDTO::getDate))
@@ -204,6 +198,16 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return list.stream()
                 .sorted((p1, p2) -> p2.getDate().compareTo(p1.getDate()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CountPromoDTO countPromo(int userId) {
+        User user = socialMediaRepository.findUser(userId);
+        Verifications.verifyUserExist(user);
+
+        int promoCount = (int) user.getPosts().stream().filter(p -> p instanceof Promo).count();
+
+        return new CountPromoDTO(user.getId(), user.getName(), promoCount);
     }
 
 }
