@@ -254,7 +254,7 @@ Obtener un listado de las publicaciones realizadas por los vendedores que un usu
   {
     "user_id": 4698,
     "posts": [ {
-            “user_id”: 123, 
+            "user_id": 123, 
             "post_id": 32,
             "date": "01-05-2021",
             "product": {
@@ -269,7 +269,7 @@ Obtener un listado de las publicaciones realizadas por los vendedores que un usu
             "price": 2800.69
         },
         {
-            “user_id”: 234,
+            "user_id": 234,
             "post_id": 18,
             "date": "29-04-2021",
             "product": {
