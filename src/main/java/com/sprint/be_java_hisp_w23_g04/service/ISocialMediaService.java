@@ -2,6 +2,7 @@ package com.sprint.be_java_hisp_w23_g04.service;
 
 import com.sprint.be_java_hisp_w23_g04.dto.request.PostDTO;
 import com.sprint.be_java_hisp_w23_g04.dto.response.*;
+import com.sprint.be_java_hisp_w23_g04.entity.Post;
 
 import java.util.List;
 
@@ -23,4 +24,6 @@ public interface ISocialMediaService {
     FilteredPostsDTO getFilteredPosts(int userId, String order);
 
     CountPromoDTO countPromo(int userId);
+
+    List<PostResponseDTO> getPostsUserByCategory(int userId, int category);
 }

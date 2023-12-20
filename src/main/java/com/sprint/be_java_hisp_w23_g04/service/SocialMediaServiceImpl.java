@@ -210,4 +210,17 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return new CountPromoDTO(user.getId(), user.getName(), promoCount);
     }
 
+    @Override
+    public List<PostResponseDTO> getPostsUserByCategory(int userId, int category) {
+        User user = socialMediaRepository.findUser(userId);
+
+        Verifications.verifyUserExist(user);
+        Verifications.validateEmptyResponseList(user.getPosts());
+
+        return user.getPosts()
+                .stream()
+                .filter(p -> p.getCategory() == category)
+                .map(p -> PostMapper.PostRequestDTOMapper(userId, p))
+                .toList();
+    }
 }
